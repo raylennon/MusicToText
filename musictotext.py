@@ -1,3 +1,5 @@
+# Made by Ray
+
 
 # for getting music metadata
 from tinytag import TinyTag
