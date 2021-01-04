@@ -32,27 +32,32 @@ for path, dirs, files in os.walk(topdir):
 
 # goes through each playlist and finds files
 for playlist in playlists:
-    
-    print('\n\n' + playlist[playlist.rfind('\\')+1:playlist.find('.wpl')]
+    playlistname = playlist[playlist.rfind('\\')+1:playlist.find('.wpl')]
+    print('\n\n' + playlistname
         + '\n~~~~~~~~~~~~~')
     content = open(playlist, 'r', encoding='utf-8').read()
     quotes = []
-    for quote in re.finditer('"', content):
-        quotes.append(quote)
-    for i in range(len(quotes)-1):
-        if "media src" in content[quotes[i].start()-15:quotes[i].start()]:
-            track = content[quotes[i].start()+1:quotes[i+1].start()]            
-            track = BeautifulSoup(unescape(track), 'lxml')
-            try:
-                if ":" not in track.text:
-                    tag = TinyTag.get( playlist[0:playlist.rfind('\\')+1] + track.text)
-                else:
-                    tag = TinyTag.get(fr"{track.text}")
-                print(tag.title, "-", tag.artist)
-            except OSError:
-                print("unable to find " + fr"{track.text}")
 
-    input("\n\nEnter to continue")
+    numsongs = 0
+
+    with open(playlistname+".txt", 'w') as writefile:
+        for quote in re.finditer('"', content):
+            quotes.append(quote)
+        for i in range(len(quotes)-1):
+            if "media src" in content[quotes[i].start()-15:quotes[i].start()]:
+                track = content[quotes[i].start()+1:quotes[i+1].start()]
+                track = BeautifulSoup(unescape(track), 'lxml')
+                try:
+                    if ":" not in track.text:
+                        tag = TinyTag.get( playlist[0:playlist.rfind('\\')+1] + track.text)
+                    else:
+                        tag = TinyTag.get(fr"{track.text}")
+                    #print(tag.title, "-", tag.artist)
+                    writefile.write(tag.title, "-", tag.artist+"\n")
+                    numsongs+=1
+                except OSError:
+                    #print("unable to find " + fr"{track.text}")
+    print(playlistname+": "+str(numsongs)+" songs")
 
 # exit
 input("\n\nPress enter to close.")
